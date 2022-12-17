@@ -13,14 +13,31 @@ logger = logging.getLogger(__name__)
 
 
 class TestlocationEngine:
+
     @pytest.fixture
-    def in_memory_db(self):
+    def vehicles(self):
+        vehicle_id_1 = '0927b073e5b44f48a8dfe7d6e4bd32d8'   
+        vehicle_id_2 = 'a2f37f1c6c43416ebbc0960e2bdda05e'
+        vehicle_id_3 = 'a2f37f1c6c43416ea8dfe7d6e4bd32d8'
+        yield vehicle_id_1, vehicle_id_2, vehicle_id_3
+
+    @pytest.fixture
+    def in_memory_db(self, vehicles):
         logging.info("Setting up a new InMemoryLocationDB for testing")
+        
+        vehicle_id_1, vehicle_id_2, vehicle_id_3 = vehicles
+
         db = InMemoryLocationDB()
+        db._vehicle_db = {
+            vehicle_id_1: Location(1, 1),
+            vehicle_id_2: Location(-2, -2),
+            vehicle_id_3: Location(2, 2),
+        }
+
         yield db
 
     def test_report_location(self, in_memory_db):
-        assert len(in_memory_db._vehicle_db) == 0
+        assert len(in_memory_db._vehicle_db) == 3
 
         vehicle_id = uuid.uuid4().hex
         location = Location(1, 1)
@@ -30,6 +47,22 @@ class TestlocationEngine:
             vehicle_id, location.latitude, location.longtitude
         )
 
-        assert len(in_memory_db._vehicle_db) == 1
+        assert len(in_memory_db._vehicle_db) == 4
         assert in_memory_db._vehicle_db[vehicle_id].latitude == location.latitude
         assert in_memory_db._vehicle_db[vehicle_id].longtitude == location.longtitude
+
+    def test_get_vehicles_in_area(self, in_memory_db, vehicles):
+        location_engine = LocationEngine(in_memory_db)
+        vehicle_id_1, vehicle_id_2, vehicle_id_3 = vehicles
+
+        vehicles = location_engine.get_vehicles_in_area(0, 0, 2)
+        assert len(vehicles) == 1
+        assert vehicles[0] == vehicle_id_1
+
+        vehicles = location_engine.get_vehicles_in_area(1, 1, 2)
+        assert len(vehicles) == 2
+        assert vehicle_id_1 in vehicles and vehicle_id_3 in vehicles
+
+        vehicles = location_engine.get_vehicles_in_area(-2.5, -2.5, 2)
+        assert len(vehicles) == 1
+        assert vehicles[0] == vehicle_id_2

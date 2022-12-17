@@ -26,9 +26,9 @@ class LocationDB(ABC):
     def _vehicle_in_radius(
         self, vehicle_location: Location, center: Location, radius: float
     ) -> bool:
-        return math.pow((vehicle_location.latitude - center.latitude), 2) + math.pow(
-            (vehicle_location.longtitude - center.longtitude), 2
-        ) < math.pow(radius, 2)
+        return (vehicle_location.latitude - center.latitude) ** 2 + (
+            vehicle_location.longtitude - center.longtitude
+        ) ** 2 <= radius**2
 
 
 class InMemoryLocationDB(LocationDB):
