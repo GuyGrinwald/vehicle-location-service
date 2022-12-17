@@ -1,11 +1,13 @@
 import nox
 
+
 @nox.session
 def lint(session):
     session.install("black")
     session.install("isort")
-    session.run("isort", "sample/hello_world.py")
-    session.run("black", "sample/hello_world.py")
+    session.run("isort", ".")
+    session.run("black", ".")
+
 
 @nox.session
 def unit_test(session):

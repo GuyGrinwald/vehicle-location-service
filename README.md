@@ -1,8 +1,21 @@
-Sample Python Project
+Vehicle Location Service
 ========================
 
-This is a sample Python project for quick bootstrapping new projects.
+A vehicle location service. Vehicles can update the server on their location, and a user
+can query the server for a list of vehicles in a specified area. The assumption is while a vehicle is in motion it
+updates it's location every few seconds.
 
+## Setup
+
+1. If not already present, install Python 3.11 and [virtualeenvwrapper](https://pypi.org/project/virtualenvwrapper/)
+2. Create a local virtualenv
+```
+$ mkvirtualenv {your-env-name}
+```
+3. Install project dependencies using
+```bash
+$ pip install -r requirements.txt
+```
 
 ## Running Tests
 
