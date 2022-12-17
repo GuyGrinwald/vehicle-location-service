@@ -13,6 +13,9 @@ class LocationEngine:
         self.db = db
 
     def report_location(self, id: str, latitude: float, longtitude: float):
+        """
+        Stores the given vehicle and location information in the DB
+        """
         if not self._valid_coordinates(latitude, longtitude):
             raise ValueError(f"Invalide coordinates: {[latitude, longtitude]}")
 
@@ -21,6 +24,9 @@ class LocationEngine:
     def get_vehicles_in_area(
         self, latitude: float, longtitude: float, radius: float
     ) -> List[str]:
+        """
+        Returns a list of vehicles in the given radius (KM) from the given center (lat/long)
+        """
         if not self._valid_coordinates(latitude, longtitude):
             raise ValueError(f"Invalide coordinates: {[latitude, longtitude]}")
 
