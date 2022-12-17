@@ -13,11 +13,25 @@ class LocationEngine:
         self.db = db
 
     def report_location(self, id: str, latitude: float, longtitude: float):
+        if not self._valid_coordinates(latitude, longtitude):
+            raise ValueError(f"Invalide coordinates: {[latitude, longtitude]}")
+
         self.db.store(id=id, latitude=latitude, longtitude=longtitude)
 
     def get_vehicles_in_area(
         self, latitude: float, longtitude: float, radius: float
     ) -> List[str]:
+        if not self._valid_coordinates(latitude, longtitude):
+            raise ValueError(f"Invalide coordinates: {[latitude, longtitude]}")
+
         return self.db.get_in_area(
             latitude=latitude, longtitude=longtitude, radius=radius
+        )
+
+    def _valid_coordinates(self, latitude: float, longtitude: float) -> bool:
+        return (
+            latitude <= 90
+            and latitude >= -90
+            and longtitude <= 180
+            and longtitude >= -180
         )

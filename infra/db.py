@@ -1,6 +1,9 @@
 import math
 from abc import ABC
+from collections import defaultdict
 from typing import List
+
+from haversine import haversine
 
 from infra.location import Location
 
@@ -19,16 +22,9 @@ class LocationDB(ABC):
         self, latitude: float, longtitude: float, radius: float
     ) -> List[str]:
         """
-        Returns a list of ids of vehivles that are in the radius of the given location (latitude, longtitude)
+        Returns a list of ids of vehivles that are in the radius (KM) of the given location (latitude, longtitude)
         """
         pass
-
-    def _vehicle_in_radius(
-        self, vehicle_location: Location, center: Location, radius: float
-    ) -> bool:
-        return (vehicle_location.latitude - center.latitude) ** 2 + (
-            vehicle_location.longtitude - center.longtitude
-        ) ** 2 <= radius**2
 
 
 class InMemoryLocationDB(LocationDB):
@@ -52,5 +48,18 @@ class InMemoryLocationDB(LocationDB):
         return [
             vehicle
             for vehicle, vehicle_location in self._vehicle_db.items()
-            if self._vehicle_in_radius(vehicle_location, center, radius)
+            if self._points_in_radius(vehicle_location, center, radius)
         ]
+
+    def _points_in_radius(
+        self, point: Location, center: Location, radius: float
+    ) -> bool:
+        """
+        Returns True if the given point is within the radius (KM) from the center
+        """
+        return (
+            haversine(
+                (center.latitude, center.longtitude), (point.latitude, point.longtitude)
+            )
+            <= radius
+        )

@@ -13,18 +13,17 @@ logger = logging.getLogger(__name__)
 
 
 class TestlocationEngine:
-
     @pytest.fixture
     def vehicles(self):
-        vehicle_id_1 = '0927b073e5b44f48a8dfe7d6e4bd32d8'   
-        vehicle_id_2 = 'a2f37f1c6c43416ebbc0960e2bdda05e'
-        vehicle_id_3 = 'a2f37f1c6c43416ea8dfe7d6e4bd32d8'
+        vehicle_id_1 = "0927b073e5b44f48a8dfe7d6e4bd32d8"
+        vehicle_id_2 = "a2f37f1c6c43416ebbc0960e2bdda05e"
+        vehicle_id_3 = "a2f37f1c6c43416ea8dfe7d6e4bd32d8"
         yield vehicle_id_1, vehicle_id_2, vehicle_id_3
 
     @pytest.fixture
     def in_memory_db(self, vehicles):
         logging.info("Setting up a new InMemoryLocationDB for testing")
-        
+
         vehicle_id_1, vehicle_id_2, vehicle_id_3 = vehicles
 
         db = InMemoryLocationDB()
@@ -55,14 +54,14 @@ class TestlocationEngine:
         location_engine = LocationEngine(in_memory_db)
         vehicle_id_1, vehicle_id_2, vehicle_id_3 = vehicles
 
-        vehicles = location_engine.get_vehicles_in_area(0, 0, 2)
+        vehicles = location_engine.get_vehicles_in_area(0, 0, 158)  # distance in KM
         assert len(vehicles) == 1
         assert vehicles[0] == vehicle_id_1
 
-        vehicles = location_engine.get_vehicles_in_area(1, 1, 2)
+        vehicles = location_engine.get_vehicles_in_area(1, 1, 316)  # distance in KM
         assert len(vehicles) == 2
         assert vehicle_id_1 in vehicles and vehicle_id_3 in vehicles
 
-        vehicles = location_engine.get_vehicles_in_area(-2.5, -2.5, 2)
+        vehicles = location_engine.get_vehicles_in_area(-2.5, -2.5, 158)
         assert len(vehicles) == 1
         assert vehicles[0] == vehicle_id_2
