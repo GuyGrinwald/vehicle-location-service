@@ -51,7 +51,7 @@ class TestlocationEngine:
         db._world_grid[Location(1, 1)] = {vehicle_id_1}
         db._world_grid[Location(-2, -2)] = {vehicle_id_2}
         db._world_grid[Location(2, 2)] = {vehicle_id_3}
-        
+
         yield db
 
     def test_report_location(self, in_memory_db):

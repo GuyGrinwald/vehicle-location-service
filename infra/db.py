@@ -93,17 +93,24 @@ class SpatialInMemoryLocationDB(LocationDB):
     def get_in_area(
         self, latitude: float, longtitude: float, radius: float
     ) -> List[str]:
-        normlized_center = self._normalize_location(Location(latitude, longtitude))
+        center = Location(latitude, longtitude)
+        normlized_center = self._normalize_location(center)
 
+        # Find all locations on world grid that are within the radius from the center
         relevant_locations = [
             location
             for location in self._world_grid.keys()
             if self._points_in_radius(location, normlized_center, radius)
         ]
 
+        # Find all vehicles in relevant locations that are within the radius from the center
         vehicles = [self._world_grid[location] for location in relevant_locations]
-
-        return [vehicle for sublist in vehicles for vehicle in sublist]
+        return [
+            vehicle
+            for sublist in vehicles
+            for vehicle in sublist
+            if self._points_in_radius(self._vehicle_db[vehicle], center, radius)
+        ]
 
     def _normalize_location(self, location: Location) -> Location:
         return Location(int(location.latitude), int(location.longtitude))
