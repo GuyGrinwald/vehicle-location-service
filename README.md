@@ -7,7 +7,7 @@ updates it's location every few seconds.
 
 ## Setup
 
-1. If not already present, install Python 3.11 and [virtualeenvwrapper](https://pypi.org/project/virtualenvwrapper/)
+1. If not already present, install Python 3.11 and [virtualenvwrapper](https://pypi.org/project/virtualenvwrapper/)
 2. Create a local virtualenv
 ```
 $ mkvirtualenv {your-env-name}
