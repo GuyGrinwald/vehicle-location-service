@@ -94,23 +94,46 @@ class SpatialInMemoryLocationDB(LocationDB):
         self, latitude: float, longtitude: float, radius: float
     ) -> List[str]:
         center = Location(latitude, longtitude)
-        normlized_center = self._normalize_location(center)
 
         # Find all locations on world grid that are within the radius from the center
         relevant_locations = [
             location
             for location in self._world_grid.keys()
-            if self._points_in_radius(location, normlized_center, radius)
+            if self._points_in_radius(location, center, radius)
         ]
 
         # Find all vehicles in relevant locations that are within the radius from the center
+        # Note: this is based on 2D Euclidean formula. This is an approximation as in reality we should 
+        # address Earth's curvitude 
         vehicles = [self._world_grid[location] for location in relevant_locations]
         return [
             vehicle
             for sublist in vehicles
             for vehicle in sublist
-            if self._points_in_radius(self._vehicle_db[vehicle], center, radius)
+            if self._intersection(self._vehicle_db[vehicle], center, radius)
         ]
 
     def _normalize_location(self, location: Location) -> Location:
         return Location(int(location.latitude), int(location.longtitude))
+
+    def _intersection(self, cell: Location, center: Location, radius: int) -> bool:
+        """
+        Returns True if any point overlaps the given Circle and Rectangle - https://www.geeksforgeeks.org/check-if-any-point-overlaps-the-given-circle-and-rectangle/
+        """
+
+        # Find the nearest point on the
+        # rectangle to the center of
+        # the circle
+        Xn = max(cell.latitude, min(center.latitude, cell.latitude+1))
+        Yn = max(cell.longtitude, min(center.longtitude, cell.longtitude+1))
+
+        # Find the distance between the
+        # nearest point and the center
+        # of the circle
+        # Distance between 2 points,
+        # (x1, y1) & (x2, y2) in
+        # 2D Euclidean space is
+        # ((x1-x2)**2 + (y1-y2)**2)**0.5
+        Dx = Xn - center.latitude
+        Dy = Yn - center.longtitude
+        return (Dx**2 + Dy**2) <= radius**2
