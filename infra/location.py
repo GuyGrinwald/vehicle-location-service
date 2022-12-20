@@ -2,7 +2,7 @@ class Location:
     def __init__(self, latitude: float, longitude: float):
         self.latitude = latitude
         self.longitude = longitude
-        
+
     def __eq__(self, another):
         return (self.latitude, self.longitude) == (another.latitude, another.longitude)
 

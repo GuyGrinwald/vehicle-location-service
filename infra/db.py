@@ -1,8 +1,8 @@
 import math
 from abc import ABC
 from collections import defaultdict
-from typing import List
 from functools import cache
+from typing import List
 
 from haversine import haversine
 
@@ -41,7 +41,7 @@ class LocationDB(ABC):
         )
 
 
-@cache # marks this as a Singleton
+@cache  # marks this as a Singleton
 class InMemoryLocationDB(LocationDB):
     """
     An in-memory implementation of the LocationDB abstract class that stores the locations in a dictionary and naively iterates
@@ -52,7 +52,6 @@ class InMemoryLocationDB(LocationDB):
         self._vehicle_db = {}
 
         super().__init__()
-
 
     def store(self, id: str, latitude: float, longitude: float):
         self._vehicle_db[id] = Location(latitude, longitude)
@@ -67,7 +66,8 @@ class InMemoryLocationDB(LocationDB):
             if self._points_in_radius(vehicle_location, center, radius)
         ]
 
-@cache # marks this as a Singleton
+
+@cache  # marks this as a Singleton
 class SpatialInMemoryLocationDB(LocationDB):
     """
     An in-memory implementation of the LocationDB abstract class that stores the locations spatial data structure
@@ -106,12 +106,12 @@ class SpatialInMemoryLocationDB(LocationDB):
         ]
 
         # Finds all vehicles in relevant locations that are within the radius from the center
-        # Note: this is based on 2D Euclidean formula. This is an approximation as in reality we should 
-        # address Earth's curvitude 
+        # Note: this is based on 2D Euclidean formula. This is an approximation as in reality we should
+        # address Earth's curvitude
         vehicles = [self._world_grid[location] for location in relevant_locations]
         return [
             vehicle
-             for sublist in vehicles
+            for sublist in vehicles
             for vehicle in sublist
             if self._intersection(self._vehicle_db[vehicle], center, radius)
         ]
@@ -127,8 +127,8 @@ class SpatialInMemoryLocationDB(LocationDB):
         # Find the nearest point on the
         # rectangle to the center of
         # the circle
-        Xn = max(cell.latitude, min(center.latitude, cell.latitude+1))
-        Yn = max(cell.longitude, min(center.longitude, cell.longitude+1))
+        Xn = max(cell.latitude, min(center.latitude, cell.latitude + 1))
+        Yn = max(cell.longitude, min(center.longitude, cell.longitude + 1))
 
         # Find the distance between the
         # nearest point and the center

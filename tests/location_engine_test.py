@@ -101,8 +101,7 @@ class TestlocationEngine:
             spatial_in_memory_db._vehicle_db[vehicle_id].latitude == location.latitude
         )
         assert (
-            spatial_in_memory_db._vehicle_db[vehicle_id].longitude
-            == location.longitude
+            spatial_in_memory_db._vehicle_db[vehicle_id].longitude == location.longitude
         )
 
     def test_spatial_get_vehicles_in_area(self, spatial_in_memory_db, vehicles):
