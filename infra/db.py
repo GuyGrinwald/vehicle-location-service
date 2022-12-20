@@ -2,6 +2,7 @@ import math
 from abc import ABC
 from collections import defaultdict
 from typing import List
+from functools import cache
 
 from haversine import haversine
 
@@ -12,17 +13,17 @@ class LocationDB(ABC):
     def __init__(self) -> None:
         super().__init__()
 
-    def store(self, id: str, latitude: float, longtitude: float):
+    def store(self, id: str, latitude: float, longitude: float):
         """
-        Stores a vehicle and location (latitude, longtitude) into the DB. I'ts up for the caller to validate the values
+        Stores a vehicle and location (latitude, longitude) into the DB. I'ts up for the caller to validate the values
         """
         pass
 
     def get_in_area(
-        self, latitude: float, longtitude: float, radius: float
+        self, latitude: float, longitude: float, radius: float
     ) -> List[str]:
         """
-        Returns a list of ids of vehivles that are in the radius (KM) of the given location (latitude, longtitude)
+        Returns a list of ids of vehivles that are in the radius (KM) of the given location (latitude, longitude)
         """
         pass
 
@@ -34,12 +35,13 @@ class LocationDB(ABC):
         """
         return (
             haversine(
-                (center.latitude, center.longtitude), (point.latitude, point.longtitude)
+                (center.latitude, center.longitude), (point.latitude, point.longitude)
             )
             <= radius
         )
 
 
+@cache # marks this as a Singleton
 class InMemoryLocationDB(LocationDB):
     """
     An in-memory implementation of the LocationDB abstract class that stores the locations in a dictionary and naively iterates
@@ -51,20 +53,21 @@ class InMemoryLocationDB(LocationDB):
 
         super().__init__()
 
-    def store(self, id: str, latitude: float, longtitude: float):
-        self._vehicle_db[id] = Location(latitude, longtitude)
+
+    def store(self, id: str, latitude: float, longitude: float):
+        self._vehicle_db[id] = Location(latitude, longitude)
 
     def get_in_area(
-        self, latitude: float, longtitude: float, radius: float
+        self, latitude: float, longitude: float, radius: float
     ) -> List[str]:
-        center = Location(latitude=latitude, longtitude=longtitude)
+        center = Location(latitude=latitude, longitude=longitude)
         return [
             vehicle
             for vehicle, vehicle_location in self._vehicle_db.items()
             if self._points_in_radius(vehicle_location, center, radius)
         ]
 
-
+@cache # marks this as a Singleton
 class SpatialInMemoryLocationDB(LocationDB):
     """
     An in-memory implementation of the LocationDB abstract class that stores the locations spatial data structure
@@ -76,7 +79,7 @@ class SpatialInMemoryLocationDB(LocationDB):
 
         super().__init__()
 
-    def store(self, id: str, latitude: float, longtitude: float):
+    def store(self, id: str, latitude: float, longitude: float):
         previous_loc = self._vehicle_db.get(id, None)
 
         # Remove vehicle from previous location on the world grid
@@ -85,15 +88,15 @@ class SpatialInMemoryLocationDB(LocationDB):
             self._world_grid[normlized_location].remove(id)
 
         # Store the new location into the DB and world grid
-        new_location = Location(latitude, longtitude)
+        new_location = Location(latitude, longitude)
         self._vehicle_db[id] = new_location
         normlized_location = self._normalize_location(new_location)
         self._world_grid[normlized_location].add(id)
 
     def get_in_area(
-        self, latitude: float, longtitude: float, radius: float
+        self, latitude: float, longitude: float, radius: float
     ) -> List[str]:
-        center = Location(latitude, longtitude)
+        center = Location(latitude, longitude)
 
         # Find all locations on world grid that are within the radius from the center
         relevant_locations = [
@@ -102,19 +105,19 @@ class SpatialInMemoryLocationDB(LocationDB):
             if self._points_in_radius(location, center, radius)
         ]
 
-        # Find all vehicles in relevant locations that are within the radius from the center
+        # Finds all vehicles in relevant locations that are within the radius from the center
         # Note: this is based on 2D Euclidean formula. This is an approximation as in reality we should 
         # address Earth's curvitude 
         vehicles = [self._world_grid[location] for location in relevant_locations]
         return [
             vehicle
-            for sublist in vehicles
+             for sublist in vehicles
             for vehicle in sublist
             if self._intersection(self._vehicle_db[vehicle], center, radius)
         ]
 
     def _normalize_location(self, location: Location) -> Location:
-        return Location(int(location.latitude), int(location.longtitude))
+        return Location(int(location.latitude), int(location.longitude))
 
     def _intersection(self, cell: Location, center: Location, radius: int) -> bool:
         """
@@ -125,7 +128,7 @@ class SpatialInMemoryLocationDB(LocationDB):
         # rectangle to the center of
         # the circle
         Xn = max(cell.latitude, min(center.latitude, cell.latitude+1))
-        Yn = max(cell.longtitude, min(center.longtitude, cell.longtitude+1))
+        Yn = max(cell.longitude, min(center.longitude, cell.longitude+1))
 
         # Find the distance between the
         # nearest point and the center
@@ -135,5 +138,5 @@ class SpatialInMemoryLocationDB(LocationDB):
         # 2D Euclidean space is
         # ((x1-x2)**2 + (y1-y2)**2)**0.5
         Dx = Xn - center.latitude
-        Dy = Yn - center.longtitude
+        Dy = Yn - center.longitude
         return (Dx**2 + Dy**2) <= radius**2

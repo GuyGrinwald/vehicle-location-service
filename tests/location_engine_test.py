@@ -62,12 +62,12 @@ class TestlocationEngine:
 
         location_engine = LocationEngine(in_memory_db)
         location_engine.report_location(
-            vehicle_id, location.latitude, location.longtitude
+            vehicle_id, location.latitude, location.longitude
         )
 
         assert len(in_memory_db._vehicle_db) == 4
         assert in_memory_db._vehicle_db[vehicle_id].latitude == location.latitude
-        assert in_memory_db._vehicle_db[vehicle_id].longtitude == location.longtitude
+        assert in_memory_db._vehicle_db[vehicle_id].longitude == location.longitude
 
     def test_get_vehicles_in_area(self, in_memory_db, vehicles):
         location_engine = LocationEngine(in_memory_db)
@@ -93,7 +93,7 @@ class TestlocationEngine:
 
         location_engine = LocationEngine(spatial_in_memory_db)
         location_engine.report_location(
-            vehicle_id, location.latitude, location.longtitude
+            vehicle_id, location.latitude, location.longitude
         )
 
         assert len(spatial_in_memory_db._vehicle_db) == 4
@@ -101,8 +101,8 @@ class TestlocationEngine:
             spatial_in_memory_db._vehicle_db[vehicle_id].latitude == location.latitude
         )
         assert (
-            spatial_in_memory_db._vehicle_db[vehicle_id].longtitude
-            == location.longtitude
+            spatial_in_memory_db._vehicle_db[vehicle_id].longitude
+            == location.longitude
         )
 
     def test_spatial_get_vehicles_in_area(self, spatial_in_memory_db, vehicles):
