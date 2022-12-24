@@ -28,3 +28,19 @@ $ pip install nox
 ```bash
 $ nox --session unit_test -f noxfile.py
 ```
+
+## Running Localy
+1. Configure your environment's interpreter into your IDE
+2. Make sure your `PATH` and `PYTHONPATH` env variables are configured properly
+3. Open `web/app.py` and run the file via the IDE
+
+## Running in Docker
+1. Make sure you have `Docker` installed
+2. `cd` to project root folder and build the image
+```bash
+$ docker build . -t vehicle-location-service
+```
+3. Run the image with exposed ports (make sure you're binded to the correct localhost - could also be `0.0.0.0`)
+```bash
+$ docker run -d -p 127.0.0.1:5000:5000 vehicle-location-service
+```
