@@ -58,5 +58,5 @@ $ kubectl run vehicle-location-service-deployment --image vehicle-location-servi
 ```
 5. To kill the container run
 ```bash
-kubectl delete vehicle-location-service-deployment
+kubectl delete deployment vehicle-location-service-deployment
 ```
