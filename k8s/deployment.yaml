@@ -1,0 +1,49 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: vehicle-location-namespace
+  labels:
+    app: vehicle-location
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vehicle-location-service-deployment
+  namespace: vehicle-location-namespace
+  labels:
+    app: vehicle-location
+spec:
+  replicas: 1 # this should be changed for non local environments
+  selector:
+    matchLabels:
+      app: vehicle-location
+  template:
+    metadata:
+      labels:
+        app: vehicle-location
+    spec:
+      containers:
+        - name: vehicle-location
+          image: vehicle-location-service
+          imagePullPolicy: Never # this is so we'll use our local image version
+          ports:
+            - containerPort: 5000
+          # env: - no env variables for now
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vehicle-location-service
+  namespace: vehicle-location-namespace
+  labels:
+    app: vehicle-location
+spec:
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: vehicle-location
+  type: LoadBalancer

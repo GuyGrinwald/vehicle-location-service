@@ -44,3 +44,19 @@ $ docker build . -t vehicle-location-service
 ```bash
 $ docker run -d -p 127.0.0.1:5000:5000 vehicle-location-service
 ```
+
+## Running in K8s
+1. Make sure you have K8s installed either via Docker-Desktop or other service such as minikube
+2. Install kubectl
+3. Apply the K8s deployment
+```bash
+$ kubectl create -f k8s\deployment.yaml
+```
+4. Run (and expose) the K8s deployment
+```bash
+$ kubectl run vehicle-location-service-deployment --image vehicle-location-service --namespace vehicle-location-namespace
+```
+5. To kill the container run
+```bash
+kubectl delete vehicle-location-service-deployment
+```
