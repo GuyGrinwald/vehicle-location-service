@@ -29,6 +29,25 @@ spec:
           imagePullPolicy: Never # this is so we'll use our local image version
           ports:
             - containerPort: 5000
+          resources:
+            requests:
+              cpu: 2
+              memory: "256M"
+            limits:
+              cpu: 2
+              memory: "256M"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
           # env: - no env variables for now
 
 ---
